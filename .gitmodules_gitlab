@@ -1,0 +1,3 @@
+[submodule "duo_universal_csharp"]
+	path = duo_universal_csharp
+	url = ../../mirrors/duo_universal_csharp.git
