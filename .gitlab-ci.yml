@@ -23,8 +23,8 @@ merge_dependencies:
   stage: merge
   # TODO depends on build step succeeding
   tags:
-    - apps-team
-    - authproxy
+    - windows
+    - adfs
   script:
     - echo "Merging the DLLs"
     - copy ThirdParty\*.dll merge\
