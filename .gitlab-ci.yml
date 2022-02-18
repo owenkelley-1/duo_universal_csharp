@@ -20,7 +20,7 @@ build_duo_universal:
   artifacts:
     expire_in: 5 minutes
     paths:
-      - ../../merge/DuoUniversal.dll
+      - merge/DuoUniversal.dll
 
 merge_dependencies:
   stage: merge
