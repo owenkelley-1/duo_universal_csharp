@@ -2,8 +2,10 @@
 
 before_script:
   - echo "Re-targeting the submodules"
-  - echo "TODO"
-
+  - cp .gitmodules.gitlab .gitmodules
+  - git submodule sync
+  - git submodule update --init --recursive
+  - echo "Submodules re-targeted"
 
 stages:
   - build
