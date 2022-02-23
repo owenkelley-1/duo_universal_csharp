@@ -2,6 +2,7 @@
 stages:
   - build
   - merge
+  - sign
 
 build_duo_universal:
   stage: build
@@ -35,3 +36,19 @@ merge_dependencies:
     expire_in: 30 minutes
     paths:
       - merge\DuoUniversalDeps.dll
+
+sign_merged_dll:
+  stage: sign
+  tags:
+    - windows
+    - adfs
+  script:
+    - mkdir signed
+    - copy merge\DuoUniversalDeps.dll signed\
+    # TODO move to cert fingerprint if possible
+    - signtool.exe sign /n "Duo Security LLC" /i "DigiCert" /t http://timestamp.digicert.com /du www.duosecurity.com /v signed\DuoUniversalDeps.dll
+  artifacts:
+    expire_in: 30 minutes
+    paths:
+      - signed\DuoUniversalDeps.dll
+
