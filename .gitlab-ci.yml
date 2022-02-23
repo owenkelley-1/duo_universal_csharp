@@ -49,7 +49,7 @@ sign_merged_dll:
     - copy merge\DuoUniversalDeps.dll signed\
     # where /r c:\ signtool.exe
     # TODO move to cert fingerprint if possible
-    - '"c:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe" sign /n "Duo Security LLC" /i "DigiCert" /t http://timestamp.digicert.com /du www.duosecurity.com /v signed\DuoUniversalDeps.dll'
+    - '"c:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe" sign /sm /n "Duo Security LLC" /i "DigiCert" /t http://timestamp.digicert.com /du www.duosecurity.com /v signed\DuoUniversalDeps.dll'
   artifacts:
     expire_in: 30 minutes
     paths:
