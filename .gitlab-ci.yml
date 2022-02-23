@@ -22,6 +22,7 @@ build_duo_universal:
 
 merge_dependencies:
   stage: merge
+  needs: [build_duo_universal]
   # TODO depends on build step succeeding
   tags:
     - windows
@@ -39,12 +40,14 @@ merge_dependencies:
 
 sign_merged_dll:
   stage: sign
+  needs: [merge_dependencies]
   tags:
     - windows
     - adfs
   script:
     - mkdir signed
     - copy merge\DuoUniversalDeps.dll signed\
+    - where /r c:\ signtool.exe
     # TODO move to cert fingerprint if possible
     - signtool.exe sign /n "Duo Security LLC" /i "DigiCert" /t http://timestamp.digicert.com /du www.duosecurity.com /v signed\DuoUniversalDeps.dll
   artifacts:
