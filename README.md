@@ -14,9 +14,21 @@ then
 `git submodule update`
 to fetch the submodule.
 
-# TODO
-Create a CI workflow that:
-1) Builds Duo Universal C# (needs dotnet, or maybe msbuild)
-2) Merges duo universal with its dependencies (in ThirdParty)
-3) ? Sign it ?
-4) Export the combined DLL as an artifact
+# Pulling in Duo Universal C# changes
+Follow the instructions at https://git-scm.com/book/en/v2/Git-Tools-Submodules for "Pulling in upstream changes":
+`cd duo_universal_csharp'
+`git fetch`
+`git merge origin/main`
+
+Then commit the changes:
+`cd ..`
+`git add duo_universal_csharp`
+`git commit -m "Pulling in upstream changes"`
+`git push origin main`
+
+# Getting the built DLL
+Go to the `duo_universal_csharp_packager` project in GitLab https://ci.duosec.org/mirrors/duo_universal_csharp_packager/-/pipelines.
+
+If you just pushed a diff (such as merging in upstream changes to duo_universal_csharp) there is probably a pipeline that is running or just finished.  Otherwise, you can manually run the pipeline on the main branch.
+
+Open the target pipeline and click on the last step (sign_merged_dll), then download the artifacts of that job.  This will have the merged, signed DLL of the Duo Universal C# client assembly.
