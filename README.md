@@ -16,14 +16,20 @@ to fetch the submodule.
 
 # Pulling in Duo Universal C# changes
 Follow the instructions at https://git-scm.com/book/en/v2/Git-Tools-Submodules for "Pulling in upstream changes":
-`cd duo_universal_csharp'
+`cd duo_universal_csharp`
+
 `git fetch`
+
 `git merge origin/main`
 
 Then commit the changes:
+
 `cd ..`
+
 `git add duo_universal_csharp`
+
 `git commit -m "Pulling in upstream changes"`
+
 `git push origin main`
 
 # Getting the built DLL
