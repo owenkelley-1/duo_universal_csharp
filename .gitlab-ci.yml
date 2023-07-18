@@ -1,3 +1,7 @@
+include:
+  - project: mirrors/ZT-bnt-common
+    file: .gitlab/includes/certificate-cap-test-plan.yml
+
 stages:
   - build
   - merge
@@ -55,3 +59,5 @@ sign_merged_dll:
     paths:
       - signed\DuoUniversalDeps.dll
 
+"audit: certificate_cap_audit":
+  extends: .cert_search_tpl
