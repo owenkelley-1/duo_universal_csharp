@@ -7,4 +7,4 @@
 # These owners will be the default owners for everything in this repo.
 # Order is important; the last matching pattern takes the most precedence.
 
-*       @cisco-sbg/duo-applications
+*       @cisco-sbg/duo-endpoint-enterprise-applications
