@@ -1,3 +1,4 @@
 [submodule "duo_universal_csharp"]
 	path = duo_universal_csharp
-	url = ssh://git@phab.duosec.org/diffusion/278/duo_universal_csharp.git
+	url = ssh://git@org-526376@github.com:duosecurity/duo_universal_csharp.git
+	
