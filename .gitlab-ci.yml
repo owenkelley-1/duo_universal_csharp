@@ -1,5 +1,5 @@
 include:
-  - project: mirrors/ZT-bnt-common
+  - project: mirrors/bnt-common
     file: .gitlab/includes/certificate-cap-test-plan.yml
 
 stages:
