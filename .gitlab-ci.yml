@@ -19,13 +19,15 @@ build_duo_universal:
     - git submodule update --init --recursive
     - echo "Submodules re-targeted"
     - cd duo_universal_csharp/DuoUniversal
-    - dotnet build -c Release -o ../../merge
+    - dotnet build -c Release -o ../../mergeNetstandard -f netstandard2.0
+    - dotnet build -c Release -o ../../mergeNet471 -f net471
   artifacts:
     expire_in: 5 minutes
     paths:
-      - merge/DuoUniversal.dll
+      - mergeNetstandard/DuoUniversal.dll
+      - mergeNet471/DuoUniversal.dll
 
-merge_dependencies:
+merge_dependencies_netstandard:
   stage: merge
   needs: [build_duo_universal]
   tags:
@@ -33,31 +35,66 @@ merge_dependencies:
     - adfs
   script:
     - echo "Merging the DLLs"
-    - copy ThirdParty\*.dll merge\
-    - cd merge
+    - copy ThirdParty\*.dll mergeNetstandard\
+    - cd mergeNetstandard
     # DLL Properties such as copyright, version, and original filename will all come from the first DLL specified, so make sure DuoUniversal.dll is always the first one listed
     - ..\Tools\ILMerge.exe /closed /out:DuoUniversalDeps.dll /keyFile:..\DuoUniversalDeps.snk /lib:"c:\Program Files\dotnet\sdk\NuGetFallbackFolder\netstandard.library\2.0.3\build\netstandard2.0\ref" DuoUniversal.dll Microsoft.Bcl.AsyncInterfaces.dll Microsoft.CSharp.dll Microsoft.IdentityModel.JsonWebTokens.dll Microsoft.IdentityModel.Logging.dll Microsoft.IdentityModel.Tokens.dll System.Buffers.dll System.Memory.dll System.Net.Http.Json.dll System.Numerics.Vectors.dll System.Runtime.CompilerServices.Unsafe.dll System.Security.Cryptography.Cng.dll System.Text.Encodings.Web.dll System.Text.Json.dll System.Threading.Tasks.Extensions.dll
     - echo "The merging is complete"
   artifacts:
     expire_in: 30 minutes
     paths:
-      - merge\DuoUniversalDeps.dll
+      - mergeNetstandard\DuoUniversalDeps.dll
 
-sign_merged_dll:
-  stage: sign
-  needs: [merge_dependencies]
+merge_dependencies_net471:
+  stage: merge
+  needs: [build_duo_universal]
   tags:
     - windows
     - adfs
   script:
-    - mkdir signed
-    - copy merge\DuoUniversalDeps.dll signed\
-    # TODO move to cert fingerprint if possible
-    - '"c:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe" sign /sm /n "Duo Security LLC" /i "DigiCert" /t http://timestamp.digicert.com /du www.duosecurity.com /fd sha256 /v signed\DuoUniversalDeps.dll'
+    - echo "Merging the DLLs"
+    - copy ThirdParty471\*.dll mergeNet471\
+    - cd mergeNet471
+    # DLL Properties such as copyright, version, and original filename will all come from the first DLL specified, so make sure DuoUniversal.dll is always the first one listed
+    - ..\Tools\ILMerge.exe /closed /out:DuoUniversalDeps.dll /keyFile:..\DuoUniversalDeps.snk /lib:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.1" /targetplatform:v4,"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.1" DuoUniversal.dll Microsoft.Bcl.AsyncInterfaces.dll Microsoft.IdentityModel.JsonWebTokens.dll Microsoft.IdentityModel.Logging.dll Microsoft.IdentityModel.Tokens.dll System.Buffers.dll System.Memory.dll System.Net.Http.Json.dll System.Numerics.Vectors.dll System.Runtime.CompilerServices.Unsafe.dll System.Text.Encodings.Web.dll System.Text.Json.dll System.Threading.Tasks.Extensions.dll Microsoft.IdentityModel.Abstractions.dll System.ValueTuple.dll
+    - echo "The merging is complete"
   artifacts:
     expire_in: 30 minutes
     paths:
-      - signed\DuoUniversalDeps.dll
+      - mergeNet471\DuoUniversalDeps.dll
+
+sign_merged_dll_netstandard:
+  stage: sign
+  needs: [merge_dependencies_netstandard]
+  tags:
+    - windows
+    - adfs
+  script:
+    - mkdir signedNetstandard
+    - copy mergeNetstandard\DuoUniversalDeps.dll signedNetstandard\
+    # TODO move to cert fingerprint if possible
+    - '"c:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe" sign /sm /n "Duo Security LLC" /i "DigiCert" /t http://timestamp.digicert.com /du www.duosecurity.com /fd sha256 /v signedNetstandard\DuoUniversalDeps.dll'
+  artifacts:
+    expire_in: 30 minutes
+    paths:
+      - signedNetstandard\DuoUniversalDeps.dll
+
+sign_merged_dll_net471:
+  stage: sign
+  needs: [merge_dependencies_net471]
+  tags:
+    - windows
+    - adfs
+  script:
+    - mkdir signedNet471
+    - copy mergeNet471\DuoUniversalDeps.dll signedNet471\
+    # TODO move to cert fingerprint if possible
+    - '"c:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe" sign /sm /n "Duo Security LLC" /i "DigiCert" /t http://timestamp.digicert.com /du www.duosecurity.com /fd sha256 /v signedNet471\DuoUniversalDeps.dll'
+  artifacts:
+    expire_in: 30 minutes
+    paths:
+      - signedNet471\DuoUniversalDeps.dll      
 
 "audit: certificate_cap_audit":
   extends: .cert_search_tpl
+
