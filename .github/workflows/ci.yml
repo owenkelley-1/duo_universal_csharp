@@ -1,0 +1,137 @@
+name: build
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+  schedule:
+    - cron: 0 4 * * *
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  checks: write
+  contents: read
+  packages: write
+
+env:
+  CISCO_DUO_OIDC_HOST: ${{ vars.CISCO_DUO_OIDC_HOST }}
+  CISCO_DUO_OIDC_IKEY: ${{ vars.CISCO_DUO_OIDC_IKEY }}
+  CISCO_PROVISION_API_ENDPOINT: ${{ vars.CISCO_PROVISION_API_ENDPOINT }}
+  GIT_HASH: ${{ github.sha }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      # Dotnet used for cross-platform building.
+      image: mcr.microsoft.com/dotnet/sdk:6.0
+    steps:
+      - uses: actions/checkout@v4.1.0
+        with:
+          # Pulls in https://github.com/duosecurity/duo_universal_csharp
+          submodules: true
+      - run: git config --global --add safe.directory $GITHUB_WORKSPACE
+      - name: 'build netstandard2.0 from submodule'
+        run: dotnet build -c Release -o ../../mergeNetstandard -f netstandard2.0
+        working-directory: duo_universal_csharp/DuoUniversal
+      - name: "build net471 from submodule"
+        run: dotnet build -c Release -o ../../mergeNet471 -f net471
+        working-directory: duo_universal_csharp/DuoUniversal
+      - name: upload_artifact_build
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: _build
+          path: |
+            mergeNetstandard/DuoUniversal.dll
+            mergeNet471/DuoUniversal.dll
+          retention-days: 1
+
+      # We need to pass the nuget .dlls to the merge_dependencies_and_sign job.
+      # In the orig Gitlab CI/CD runner these were sitting in
+      # C:\Program Files\dotnet\sdk\NuGetFallbackFolder\netstandard.library\2.0.3\build\netstandard2.0\ref
+      # However that dir doesn't exist here.
+      - run: mv ~/.nuget nuget
+      - name: upload_artifact_nuget
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: _nuget
+          path: nuget
+          retention-days: 1
+
+  merge_dependencies_and_sign:
+    runs-on: windows-latest
+    defaults:
+      run:
+        # Don't use Powershell.
+        shell: cmd
+    timeout-minutes: 15
+    needs: build
+    environment: authenticode-signing
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          # This dotnet is only for running ilmerge. ilmerge also has to run on a windows runner.
+          # It's possible to load multiple
+          # dotnet versions, but actions/setup-dotnet only supports dotnet core
+          # dotnet framework 4.7 (old, windows only) isn't available.
+          dotnet-version: 8
+      - uses: actions/checkout@v4.1.0
+        with:
+          submodules: true
+      - name: download_artifact_build
+        uses: actions/download-artifact@v4
+        with:
+          name: _build
+          path: .
+
+      - name: download_artifact_nuget
+        uses: actions/download-artifact@v4
+        with:
+          name: _nuget
+          path: nuget
+
+        # This .gz is the contents from a Gitlab CI/CD windows runner as of 23-oct-2024
+        # C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.1
+        # That's not avail on the github actions windows runner, so we include it directly.
+      - run: tar xf reference_assemblies_dotnet_471.tar.gz
+
+      - name: Merging netstandard2.0
+        run: copy ThirdParty\*.dll mergeNetstandard\
+        # python 3.x is pre-installed on the windows runners.
+        # Using this instead of Powershell because yours truly prefers python
+        # and it allows some testing on linux/osx.
+      - run: python Tools\ilmerge_runner.py netstandard2.0
+      - name: Merging net47
+        run: copy ThirdParty471\*.dll mergeNet471\
+      - run: python Tools\ilmerge_runner.py net47
+      - name: Sign Binaries
+        uses: cisco-sbg/ZT-github-actions/.github/actions/windows-signtool@main
+        with:
+          authenticode-certificate-parameter: ${{ vars.AUTHENTICODE_CERTIFICATE_PARAMETER }}
+          authenticode-kms-key-id: ${{ vars.AUTHENTICODE_KMS_KEY_ID }}
+          aws-role-arn: ${{ vars.AUTHENTICODE_ROLE_ARN }}
+          files-to-sign: |
+            mergeNetstandard\DuoUniversalDeps.dll
+            mergeNet471\DuoUniversalDeps.dll
+
+      - run: echo "prepare target artifact"
+      - run: mkdir build_deps\signedNetstandard
+      - run: mkdir build_deps\signedNet471
+      - run: copy mergeNetstandard\DuoUniversalDeps.dll build_deps\signedNetstandard\DuoUniversalDeps.dll
+      - run: copy mergeNet471\DuoUniversalDeps.dll build_deps\signedNet471\DuoUniversalDeps.dll
+      - name: upload_artifact_build_deps
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: build_deps
+          path: build_deps
+          overwrite: true
+          retention-days: 2

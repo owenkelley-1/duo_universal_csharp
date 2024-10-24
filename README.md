@@ -2,7 +2,7 @@
 
 The purpose of this repository is to generate a .DLL of the Duo Universal C# client, suitable for use in Windows products.
 
-See https://wiki.duosec.org/pages/viewpage.action?pageId=33826201 for details of how this is intended to work.
+See [ADR](https://cisco-sbg.atlassian.net/wiki/spaces/dev/pages/657047974/ADFS+Universal+-+Duo+Universal+C+Dependency) for details of how this is intended to work.
 
 # Cloning
 

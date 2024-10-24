@@ -93,7 +93,7 @@ sign_merged_dll_net471:
   artifacts:
     expire_in: 30 minutes
     paths:
-      - signedNet471\DuoUniversalDeps.dll      
+      - signedNet471\DuoUniversalDeps.dll
 
 "audit: certificate_cap_audit":
   extends: .cert_search_tpl
