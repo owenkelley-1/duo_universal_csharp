@@ -113,7 +113,7 @@ jobs:
       - name: Merging net47
         run: copy ThirdParty471\*.dll mergeNet471\
       - run: python Tools\ilmerge_runner.py net47
-      - name: Sign Binaries
+      - name: Sign mergeNetstandard\DuoUniversalDeps.dll
         uses: cisco-sbg/ZT-github-actions/.github/actions/windows-signtool@main
         with:
           authenticode-certificate-parameter: ${{ vars.AUTHENTICODE_CERTIFICATE_PARAMETER }}
@@ -121,6 +121,14 @@ jobs:
           aws-role-arn: ${{ vars.AUTHENTICODE_ROLE_ARN }}
           files-to-sign: |
             mergeNetstandard\DuoUniversalDeps.dll
+  
+      - name: Sign mergeNet471\DuoUniversalDeps.dll
+        uses: cisco-sbg/ZT-github-actions/.github/actions/windows-signtool@main
+        with:
+          authenticode-certificate-parameter: ${{ vars.AUTHENTICODE_CERTIFICATE_PARAMETER }}
+          authenticode-kms-key-id: ${{ vars.AUTHENTICODE_KMS_KEY_ID }}
+          aws-role-arn: ${{ vars.AUTHENTICODE_ROLE_ARN }}
+          files-to-sign: |
             mergeNet471\DuoUniversalDeps.dll
 
       - run: echo "prepare target artifact"
