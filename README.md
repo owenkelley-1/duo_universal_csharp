@@ -33,11 +33,11 @@ Then commit the changes:
 `git push origin main`
 
 # Getting the built DLL
-Go to the `duo_universal_csharp_packager` project in GitLab https://ci.duosec.org/mirrors/duo_universal_csharp_packager/-/pipelines.
+Go to the 'Actions' tab within the ZT-duo_universal_csharp_packager repository.
 
-If you just pushed a diff (such as merging in upstream changes to duo_universal_csharp) there is probably a pipeline that is running or just finished.  Otherwise, you can manually run the pipeline on the main branch.
+Select the 'build' workflow on the left then use the 'Run workflow' drop-down on the right to select a branch and start the workflow.
 
-Open the target pipeline and click on the last step (sign_merged_dll), then download the artifacts of that job.  This will have the merged, signed DLL of the Duo Universal C# client assembly.
+Select the workflow that was just started and download the 'build_deps' artifact. This will have the merged, signed DLL of the Duo Universal C# client assembly.
 
 # Other resources
 [adfs - figure out duo universal dll dependency](https://phab.duosec.org/T145074) - Has notes on dependencies etc.
