@@ -37,7 +37,7 @@ Go to the 'Actions' tab within the ZT-duo_universal_csharp_packager repository.
 
 Select the 'build' workflow on the left then use the 'Run workflow' drop-down on the right to select a branch and start the workflow.
 
-Select the workflow that was just started and download the 'build_deps' artifact. This will have the merged, signed DLL of the Duo Universal C# client assembly.
+Select the workflow that was just started and download the 'build_deps' artifact. This will have the merged, signed DLL of the Duo Universal C# client assembly. There are two versions available: signedNet471/DuoUniversalDeps.dll which is only for use with Epic Hyperdrive, and signNetStandard/DuoUniversalDeps.dll for use with everything else.
 
 # Other resources
 [adfs - figure out duo universal dll dependency](https://phab.duosec.org/T145074) - Has notes on dependencies etc.
