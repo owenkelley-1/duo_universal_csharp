@@ -74,7 +74,7 @@ elif args.platform == "net47":
     target_platform_line = "/targetplatform:v4,\"..\\reference_assemblies\""
 
     os.chdir("mergeNet471")
-    cmd = "..\\Tools\\ILMerge.exe /closed /out:DuoUniversalDeps.dll /keyFile:..\DuoUniversalDeps.snk {} {} {}".\
+    cmd = "..\\Tools\\ILMerge.exe /closed /out:DuoUniversalDeps471.dll /keyFile:..\DuoUniversalDeps.snk {} {} {}".\
         format(lib_line, target_platform_line, dlls_line)
 
 # Max command length 8191. Current length around 2550 so we have headroom.

@@ -122,20 +122,20 @@ jobs:
           files-to-sign: |
             mergeNetstandard\DuoUniversalDeps.dll
   
-      - name: Sign mergeNet471\DuoUniversalDeps.dll
+      - name: Sign mergeNet471\DuoUniversalDeps471.dll
         uses: cisco-sbg/ZT-github-actions/.github/actions/windows-signtool@main
         with:
           authenticode-certificate-parameter: ${{ vars.AUTHENTICODE_CERTIFICATE_PARAMETER }}
           authenticode-kms-key-id: ${{ vars.AUTHENTICODE_KMS_KEY_ID }}
           aws-role-arn: ${{ vars.AUTHENTICODE_ROLE_ARN }}
           files-to-sign: |
-            mergeNet471\DuoUniversalDeps.dll
+            mergeNet471\DuoUniversalDeps471.dll
 
       - run: echo "prepare target artifact"
       - run: mkdir build_deps\signedNetstandard
       - run: mkdir build_deps\signedNet471
       - run: copy mergeNetstandard\DuoUniversalDeps.dll build_deps\signedNetstandard\DuoUniversalDeps.dll
-      - run: copy mergeNet471\DuoUniversalDeps.dll build_deps\signedNet471\DuoUniversalDeps.dll
+      - run: copy mergeNet471\DuoUniversalDeps471.dll build_deps\signedNet471\DuoUniversalDeps471.dll
       - name: upload_artifact_build_deps
         uses: actions/upload-artifact@v4.4.0
         with:
