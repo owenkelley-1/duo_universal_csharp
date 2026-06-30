@@ -1,4 +1,5 @@
 [submodule "duo_universal_csharp"]
 	path = duo_universal_csharp
 	url = https://github.com/owenkelley-1/duo_universal_csharp.git
+	branch = disable-pinning
 	
