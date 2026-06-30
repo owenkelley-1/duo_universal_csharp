@@ -1,4 +1,4 @@
 [submodule "duo_universal_csharp"]
 	path = duo_universal_csharp
-	url = git@github.com:duosecurity/duo_universal_csharp.git
+	url = https://github.com/owenkelley-1/duo_universal_csharp.git
 	
